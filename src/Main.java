@@ -1,15 +1,16 @@
 public class Main {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         System.out.println("========================================");
         System.out.println("   Welcome to Room & Vroom");
         System.out.println("========================================\n");
-        
+
         Menu_func.setupPartners();
         Menu_func.setupVehicle();
         Menu_func.setupChores();
 
         boolean running = true;
         while (running) {
+            Menu_func.checkWeeklySummary();
             Menu_func.printMenu();
             int choice = Menu_func.readInt("Enter your choice: ");
 
@@ -33,13 +34,13 @@ public class Main {
                     Menu_func.printStatus();
                     break;
                 case 7:
-                    Menu_func.printAllDataStructures();
+                    Menu_func.settleUp();
                     break;
                 case 8:
-                    Menu_func.advanceDay();
+                    Menu_func.manageChores();
                     break;
                 case 9:
-                    Menu_func.manageChores();
+                    Menu_func.advanceDay();
                     break;
                 case 0:
                     System.out.println("\nGoodbye! Keep it fair.");

@@ -1,3 +1,7 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+
 /**
  * Room & Vroom - Shared Household Management System
  * Authors: גל קסירר (318158466), אסף שוורץ (207812744), אסף חיון (214195331)
@@ -10,7 +14,8 @@ public class RecurringChore extends Chore {
     // ===================== Fields =====================
     private int intervalDays;       // How often it repeats (e.g. 7 = weekly)
     private int timesCompleted;     // How many times this chore has been done total
-    private int daysSinceCompleted;
+    private int timesCompletedThisWeek; // How many times completed this week
+    private String lastCompletedDate;
 
     // ===================== Constructors =====================
 
@@ -18,7 +23,8 @@ public class RecurringChore extends Chore {
         super();
         this.intervalDays = 7;
         this.timesCompleted = 0;
-        this.daysSinceCompleted = 0;
+        this.timesCompletedThisWeek = 0;
+        this.lastCompletedDate = null;
     }
 
     public RecurringChore(String description, int pointValue, Partner assignedPartner,
@@ -26,7 +32,8 @@ public class RecurringChore extends Chore {
         super(description, pointValue, assignedPartner);
         this.intervalDays = intervalDays;
         this.timesCompleted = 0;
-        this.daysSinceCompleted = 0;
+        this.timesCompletedThisWeek = 0;
+        this.lastCompletedDate = null;
     }
 
     // ===================== Getters & Setters =====================
@@ -42,6 +49,14 @@ public class RecurringChore extends Chore {
     public int getTimesCompleted() {
         return timesCompleted;
     }
+    
+    public int getTimesCompletedThisWeek() {
+        return timesCompletedThisWeek;
+    }
+    
+    public void resetWeeklyStats() {
+        this.timesCompletedThisWeek = 0;
+    }
 
     // ===================== Methods =====================
 
@@ -53,18 +68,23 @@ public class RecurringChore extends Chore {
     public void completeChore() {
         super.completeChore();              // Award points via parent logic
         this.timesCompleted++;
-        this.daysSinceCompleted = 0;
+        this.timesCompletedThisWeek++;
+        this.lastCompletedDate = Menu_func.getTodayString();
 
         System.out.println("🔄 Recurring chore completed. It will return in " + intervalDays + " day(s).");
     }
 
-    public void advanceDay() {
-        if (isCompleted()) {
-            this.daysSinceCompleted++;
-            if (this.daysSinceCompleted >= this.intervalDays) {
+    public void checkAndResetAvailability() {
+        if (super.isCompleted() && lastCompletedDate != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate lastDate = LocalDate.parse(lastCompletedDate, formatter);
+            LocalDate today = Menu_func.currentDate;
+            
+            long daysPassed = ChronoUnit.DAYS.between(lastDate, today);
+            if (daysPassed >= intervalDays) {
                 System.out.println("⏰ Recurring cycle finished for: '" + getDescription() + "' -> Chore is available again!");
                 super.reset();
-                this.daysSinceCompleted = 0;
+                this.lastCompletedDate = null;
             }
         }
     }
@@ -82,8 +102,15 @@ public class RecurringChore extends Chore {
 
     @Override
     public String getLabel() {
+        checkAndResetAvailability();
         String base = super.getLabel();
         return base + " [" + getScheduleDescription() + "]";
+    }
+
+    @Override
+    public boolean isCompleted() {
+        checkAndResetAvailability();
+        return super.isCompleted();
     }
 
     @Override

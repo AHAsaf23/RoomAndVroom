@@ -18,6 +18,8 @@ public class Menu_func {
     public static BookingQueue bookingQueue = new BookingQueue();
     public static ChoreLinkedList choreLinkedList = new ChoreLinkedList();
     public static ExpenseCategoryTree categoryTree = new ExpenseCategoryTree();
+    public static java.time.LocalDate currentDate = java.time.LocalDate.now();
+    public static java.time.LocalDate lastSummaryDate = currentDate;
 
     // ══════════════════════════════════════════════════════════
     //  SETUP
@@ -69,6 +71,9 @@ public class Menu_func {
     // ══════════════════════════════════════════════════════════
 
     public static void printMenu() {
+        if (!bookingQueue.isEmpty()) {
+            System.out.println("\n⚠️ You have " + bookingQueue.size() + " pending booking request(s) awaiting approval!");
+        }
         System.out.println("\n╔════════════════════════════════════╗");
         System.out.println("║        ROOM & VROOM MENU           ║");
         System.out.println("╠════════════════════════════════════╣");
@@ -78,9 +83,9 @@ public class Menu_func {
         System.out.println("║  4. Mark a chore as done           ║");
         System.out.println("║  5. Undo last transaction          ║");
         System.out.println("║  6. View balances & status         ║");
-        System.out.println("║  7. View all data structures       ║");
-        System.out.println("║  8. Advance one day (Simulate time)║");
-        System.out.println("║  9. Manage chores                  ║");
+        System.out.println("║  7. Settle up                      ║");
+        System.out.println("║  8. Manage chores                  ║");
+        System.out.println("║  9. Advance one day (Simulate time)║");
         System.out.println("║  0. Exit                           ║");
         System.out.println("╚════════════════════════════════════╝");
     }
@@ -207,9 +212,9 @@ public class Menu_func {
         // Show the request details
         System.out.println("\n  Pending request:");
         System.out.println("  ┌─────────────────────────────────┐");
-        System.out.printf("  │  From    : %-21s │%n", requester.getName());
-        System.out.printf("  │  Date    : %-21s │%n", next.getBookingDate());
-        System.out.printf("  │  Time    : %02d:00 – %02d:00           │%n", next.getStartHour(), next.getEndHour());
+        System.out.printf("  │  From    : %-21s│%n", requester.getName());
+        System.out.printf("  │  Date    : %-21s│%n", next.getBookingDate());
+        System.out.printf("  │  Time    : %02d:00 – %02d:00        │%n", next.getStartHour(), next.getEndHour());
         System.out.println("  └─────────────────────────────────┘");
 
         System.out.println("\n  " + reviewer.getName() + ", what do you want to do?");
@@ -286,9 +291,7 @@ public class Menu_func {
             choreList[idx].setAssignedPartner(doer);
             choreList[idx].completeChore();
 
-            if (!(choreList[idx] instanceof RecurringChore)) {
-                choreLinkedList.remove(choreList[idx].getDescription()); // LinkedList
-            }
+            // Chores are no longer removed from the list when completed, per user request.
 
             System.out.printf("%n  %-15s %d pts%n", partnerA.getName() + ":", partnerA.getChorePoints());
             System.out.printf("  %-15s %d pts%n", partnerB.getName() + ":", partnerB.getChorePoints());
@@ -530,48 +533,103 @@ public class Menu_func {
     }
 
     // ══════════════════════════════════════════════════════════
-    //  8. WEEKLY CHORE RESET
+    //  8. SETTLE UP (Debt Settlement)
     // ══════════════════════════════════════════════════════════
 
-    public static void weeklyChoreReset() {
-        System.out.println("\n── Weekly Chore Points Reset ──────────");
-        System.out.printf("  Before reset → %s: %d pts  |  %s: %d pts%n",
-                partnerA.getName(), partnerA.getChorePoints(),
-                partnerB.getName(), partnerB.getChorePoints());
-        partnerA.resetChorePoints();
-        partnerB.resetChorePoints();
-
-        for (int i = 0; i < choreCount; i++) {
-            choreList[i].reset();
-            choreLinkedList.add(choreList[i]);
+    public static void settleUp() {
+        System.out.println("\n── Settle Up ──────────────────────────");
+        double balanceA = partnerA.getfBalance();
+        if (Math.abs(balanceA) < 0.01) {
+            System.out.println("No debts to settle! Balances are even.");
+            return;
         }
-        System.out.println("  ✔ New week started — all chores are back in the list!");
+
+        Partner debtor, receiver;
+        double amount = Math.abs(balanceA);
+        if (balanceA < 0) {
+            debtor = partnerA;
+            receiver = partnerB;
+        } else {
+            debtor = partnerB;
+            receiver = partnerA;
+        }
+
+        System.out.println(debtor.getName() + " owes " + receiver.getName() + " " + String.format("%.2f", amount) + " NIS.");
+        System.out.println("Do you want to settle this debt now?");
+        System.out.println("1. Yes, apply settlement");
+        System.out.println("0. No, cancel");
+        int choice = readInt("Choice: ");
+
+        if (choice == 1) {
+            DebtSettlement settlement = new DebtSettlement(amount, debtor, getTodayString());
+            settlement.apply(partnerA, partnerB);
+            transactionHistory.push(settlement);
+            System.out.println("Debt settled successfully.");
+        } else {
+            System.out.println("Settlement cancelled.");
+        }
     }
 
     // ══════════════════════════════════════════════════════════
-    //  7. ALL DATA STRUCTURES
+    //  WEEKLY SUMMARY
     // ══════════════════════════════════════════════════════════
 
-    public static void printAllDataStructures() {
-        System.out.println("\n════ DATA STRUCTURES OVERVIEW ══════════");
-        transactionHistory.printAll();
-        System.out.println();
-        bookingQueue.printAll();
-        System.out.println();
-        choreLinkedList.printAll();
-        System.out.println();
-        categoryTree.printAll();
-        System.out.println("════════════════════════════════════════");
-    }
+    public static void checkWeeklySummary() {
+        long daysPassed = java.time.temporal.ChronoUnit.DAYS.between(lastSummaryDate, currentDate);
 
-    public static void advanceDay() {
-        System.out.println("\n── Advancing 1 Day ─────────────────────");
-        for (int i = 0; i < choreCount; i++) {
-            if (choreList[i] instanceof RecurringChore) {
-                ((RecurringChore) choreList[i]).advanceDay();
+        if (daysPassed >= 7) {
+            System.out.println("\n════════════════════════════════════════════════");
+            System.out.println("            🌟 WEEKLY SUMMARY 🌟                ");
+            System.out.println("════════════════════════════════════════════════");
+
+            System.out.println("\n── Financial Status ──");
+            System.out.printf("  %s: %.2f NIS%n", partnerA.getName(), partnerA.getfBalance());
+            System.out.printf("  %s: %.2f NIS%n", partnerB.getName(), partnerB.getfBalance());
+
+            System.out.println("\n── Vehicle Bookings ──");
+            System.out.println("  Total bookings this week: " + sharedVehicle.getBookingCount());
+            sharedVehicle.resetWeeklyBookings();
+
+            System.out.println("\n── Chores Completed ──");
+            int totalChoresA = 0, totalChoresB = 0;
+            for (int i = 0; i < choreCount; i++) {
+                if (choreList[i] instanceof RecurringChore rc) {
+                    if (rc.getTimesCompletedThisWeek() > 0) {
+                        System.out.println("  " + rc.getDescription() + " - Completed " + rc.getTimesCompletedThisWeek() + " times");
+                    }
+                }
             }
+
+            System.out.println("\n── Chore Points ──");
+            System.out.println("  " + partnerA.getName() + ": " + partnerA.getChorePoints() + " pts");
+            System.out.println("  " + partnerB.getName() + ": " + partnerB.getChorePoints() + " pts");
+
+            Partner winner = null;
+            if (partnerA.getChorePoints() > partnerB.getChorePoints()) winner = partnerA;
+            else if (partnerB.getChorePoints() > partnerA.getChorePoints()) winner = partnerB;
+
+            if (winner != null) {
+                System.out.println("\n🏆 WINNER THIS WEEK: " + winner.getName() + " 🏆");
+
+                System.out.println(winner.getName() + " is the winner of the week, so S/He can choose one chore to not do this week!");
+            } else {
+                System.out.println("\nIt's a tie! No reward awarded this week.");
+            }
+
+            // Reset chore points and weekly tracking
+            partnerA.resetChorePoints();
+            partnerB.resetChorePoints();
+            for (int i = 0; i < choreCount; i++) {
+                if (choreList[i] instanceof RecurringChore) {
+                    ((RecurringChore) choreList[i]).resetWeeklyStats();
+                }
+            }
+            lastSummaryDate = currentDate;
+
+            System.out.println("════════════════════════════════════════════════\n");
+            System.out.println("Press Enter to continue...");
+            scanner.nextLine();
         }
-        System.out.println("A day has passed in the system.");
     }
 
     // ══════════════════════════════════════════════════════════
@@ -601,7 +659,19 @@ public class Menu_func {
     }
 
     public static String getTodayString() {
-        java.time.LocalDate today = java.time.LocalDate.now();
-        return String.format("%02d/%02d/%04d", today.getDayOfMonth(), today.getMonthValue(), today.getYear());
+        return String.format("%02d/%02d/%04d", currentDate.getDayOfMonth(), currentDate.getMonthValue(), currentDate.getYear());
+    }
+
+    public static void advanceDay() {
+        currentDate = currentDate.plusDays(1);
+        System.out.println("\n── Advancing 1 Day ─────────────────────");
+        System.out.println("A day has passed! Current system date is now: " + getTodayString());
+
+        // Advance recurring chores
+        for (int i = 0; i < choreCount; i++) {
+            if (choreList[i] instanceof RecurringChore) {
+                ((RecurringChore) choreList[i]).checkAndResetAvailability();
+            }
+        }
     }
 }

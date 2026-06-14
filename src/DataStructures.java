@@ -61,7 +61,7 @@ class TransactionStack {
     }
 
     public void printAll() {
-        System.out.println("── Transaction History (Stack) ────────");
+        System.out.println("── Transaction History ────────────────");
         if (isEmpty()) {
             System.out.println("  (empty)");
             return;
@@ -139,8 +139,18 @@ class BookingQueue {
         return front == null;
     }
 
+    public int size() {
+        int count = 0;
+        Node current = front;
+        while (current != null) {
+            count++;
+            current = current.next;
+        }
+        return count;
+    }
+
     public void printAll() {
-        System.out.println("── Pending Booking Requests (Queue) ───");
+        System.out.println("── Pending Booking Requests ───────────");
         if (isEmpty()) {
             System.out.println("  (no pending requests)");
             return;
@@ -221,7 +231,7 @@ class ChoreLinkedList {
     }
 
     public void printAll() {
-        System.out.println("── Chore List (LinkedList) ────────────");
+        System.out.println("── Chore List ─────────────────────────");
         if (isEmpty()) {
             System.out.println("  (no chores)");
             return;
@@ -294,7 +304,7 @@ class ExpenseCategoryTree {
      * Print all categories in alphabetical order (in-order traversal)
      */
     public void printAll() {
-        System.out.println("── Expense Categories (Tree, A→Z) ─────");
+        System.out.println("── Expense Categories ─────────────────");
         if (root == null) {
             System.out.println("  (no expenses recorded)");
             return;

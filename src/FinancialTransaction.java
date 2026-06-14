@@ -125,4 +125,49 @@ class Expense extends FinancialTransaction {
     }
 }
 
+// =============================================================================
+
+/**
+ * DebtSettlement.java - Records a direct payment from one partner to another to settle debts.
+ */
+class DebtSettlement extends FinancialTransaction {
+
+    // ===================== Constructors =====================
+    public DebtSettlement(double amount, Partner paidBy, String date) {
+        super(amount, paidBy, date);
+    }
+
+    // ===================== Methods =====================
+
+    /**
+     * Applies the debt settlement.
+     * The payer's balance increases (gets closer to 0 or positive).
+     * The receiver's balance decreases (gets closer to 0).
+     */
+    @Override
+    public void apply(Partner partnerA, Partner partnerB) {
+        Partner payer = this.paidBy;
+        Partner receiver = payer.getId().equals(partnerA.getId()) ? partnerB : partnerA;
+
+        payer.updateFinancialBalance(amount);
+        receiver.updateFinancialBalance(-amount);
+
+        System.out.println("✅ Debt Settlement applied: " + payer.getName() + 
+                " paid " + String.format("%.2f", amount) + " NIS to " + receiver.getName() + ".");
+    }
+
+    @Override
+    public String getSummary() {
+        return "[SETTLEMENT] " + String.format("%.2f", amount) + " NIS | Paid by: " + 
+               paidBy.getName() + " | Date: " + date;
+    }
+
+    @Override
+    public String toString() {
+        return "DebtSettlement{amount=" + String.format("%.2f", amount) +
+                " NIS, paidBy='" + paidBy.getName() + '\'' +
+                ", date='" + date + '\'' + '}';
+    }
+}
+
 

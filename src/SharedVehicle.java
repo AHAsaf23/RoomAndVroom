@@ -54,6 +54,11 @@ public class SharedVehicle {
 
     public int getBookingCount() { return bookingCount; }
 
+    public void resetWeeklyBookings() {
+        this.bookingCount = 0;
+        this.weeklySchedule = new boolean[DAYS_IN_WEEK][HOURS_IN_DAY];
+    }
+
     // ===================== Methods =====================
 
     /**

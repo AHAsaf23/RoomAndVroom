@@ -51,12 +51,12 @@ public class Menu_func {
         // 1D array — for menu display
         choreList = new Chore[20];
 
-        // Setup standard and recurring chores
-        choreList[choreCount++] = new RecurringChore("Take out the trash", 5, null, 1);
-        choreList[choreCount++] = new RecurringChore("Wash the dishes", 8, null, 1);
-        choreList[choreCount++] = new RecurringChore("Vacuum", 15, null, 3);
-        choreList[choreCount++] = new RecurringChore("Do the laundry", 12, null, 7);
-        choreList[choreCount++] = new RecurringChore("Clean the bathroom", 20, null, 7);
+        // Setup standard and recurring chores (times per week)
+        choreList[choreCount++] = new RecurringChore("Take out the trash", 5, null, 7);
+        choreList[choreCount++] = new RecurringChore("Wash the dishes", 8, null, 7);
+        choreList[choreCount++] = new RecurringChore("Vacuum", 15, null, 2);
+        choreList[choreCount++] = new RecurringChore("Do the laundry", 12, null, 1);
+        choreList[choreCount++] = new RecurringChore("Clean the bathroom", 20, null, 1);
 
         // LinkedList — add all chores
         for (int i = 0; i < choreCount; i++) {
@@ -505,8 +505,8 @@ public class Menu_func {
                 System.out.println("  ✔ Points updated to " + newPoints + ".");
                 break;
             case 3:
-                int newInterval = readFrequency();
-                chore.setIntervalDays(newInterval);
+                int newTimesPerWeek = readFrequency();
+                chore.setTimesPerWeek(newTimesPerWeek);
                 System.out.println("  ✔ Frequency updated to " + chore.getScheduleDescription() + ".");
                 break;
             default:
@@ -516,20 +516,11 @@ public class Menu_func {
 
     public static int readFrequency() {
         System.out.println("  Frequency:");
-        System.out.println("  1. Times per day");
-        System.out.println("  2. Times per week");
-        int freqChoice = readInt("  Choice: ");
 
-        if (freqChoice == 1) {
-            int timesPerDay = readInt("  How many times per day? ");
-            if (timesPerDay <= 0) timesPerDay = 1;
-            return 1;
-        } else {
-            int timesPerWeek = readInt("  How many times per week? ");
-            if (timesPerWeek <= 0) timesPerWeek = 1;
-            if (timesPerWeek >= 7) return 1;
-            return Math.max(1, 7 / timesPerWeek);
-        }
+        int timesPerWeek = readInt("  How many times per week? ");
+        if (timesPerWeek <= 0) timesPerWeek = 1;
+        if (timesPerWeek > 7) timesPerWeek = 7;
+        return timesPerWeek;
     }
 
     // ══════════════════════════════════════════════════════════

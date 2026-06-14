@@ -12,7 +12,7 @@ import java.time.temporal.ChronoUnit;
 public class RecurringChore extends Chore {
 
     // ===================== Fields =====================
-    private int intervalDays;       // How often it repeats (e.g. 7 = weekly)
+    private int timesPerWeek;       // How many times it repeats per week
     private int timesCompleted;     // How many times this chore has been done total
     private int timesCompletedThisWeek; // How many times completed this week
     private String lastCompletedDate;
@@ -21,16 +21,16 @@ public class RecurringChore extends Chore {
 
     public RecurringChore() {
         super();
-        this.intervalDays = 7;
+        this.timesPerWeek = 1;
         this.timesCompleted = 0;
         this.timesCompletedThisWeek = 0;
         this.lastCompletedDate = null;
     }
 
     public RecurringChore(String description, int pointValue, Partner assignedPartner,
-                          int intervalDays) {
+                          int timesPerWeek) {
         super(description, pointValue, assignedPartner);
-        this.intervalDays = intervalDays;
+        this.timesPerWeek = timesPerWeek;
         this.timesCompleted = 0;
         this.timesCompletedThisWeek = 0;
         this.lastCompletedDate = null;
@@ -38,12 +38,12 @@ public class RecurringChore extends Chore {
 
     // ===================== Getters & Setters =====================
 
-    public int getIntervalDays() {
-        return intervalDays;
+    public int getTimesPerWeek() {
+        return timesPerWeek;
     }
 
-    public void setIntervalDays(int intervalDays) {
-        this.intervalDays = intervalDays;
+    public void setTimesPerWeek(int timesPerWeek) {
+        this.timesPerWeek = timesPerWeek;
     }
 
     public int getTimesCompleted() {
@@ -71,7 +71,7 @@ public class RecurringChore extends Chore {
         this.timesCompletedThisWeek++;
         this.lastCompletedDate = Menu_func.getTodayString();
 
-        System.out.println("🔄 Recurring chore completed. It will return in " + intervalDays + " day(s).");
+        System.out.println("🔄 Recurring chore completed.");
     }
 
     public void checkAndResetAvailability() {
@@ -81,7 +81,8 @@ public class RecurringChore extends Chore {
             LocalDate today = Menu_func.currentDate;
             
             long daysPassed = ChronoUnit.DAYS.between(lastDate, today);
-            if (daysPassed >= intervalDays) {
+            double requiredDays = 7.0 / timesPerWeek;
+            if (daysPassed >= requiredDays) {
                 System.out.println("⏰ Recurring cycle finished for: '" + getDescription() + "' -> Chore is available again!");
                 super.reset();
                 this.lastCompletedDate = null;
@@ -93,11 +94,9 @@ public class RecurringChore extends Chore {
      * Returns a human-readable description of how often this chore repeats.
      */
     public String getScheduleDescription() {
-        if (intervalDays == 1) return "every day";
-        if (intervalDays == 7) return "every week";
-        if (intervalDays == 14) return "every 2 weeks";
-        if (intervalDays == 30) return "every month";
-        return "every " + intervalDays + " days";
+        if (timesPerWeek == 7) return "every day";
+        if (timesPerWeek == 1) return "once a week";
+        return timesPerWeek + " times a week";
     }
 
     @Override
@@ -117,7 +116,7 @@ public class RecurringChore extends Chore {
     public String toString() {
         return "RecurringChore{" +
                 "description='" + getDescription() + '\'' +
-                ", intervalDays=" + intervalDays +
+                ", timesPerWeek=" + timesPerWeek +
                 ", timesCompleted=" + timesCompleted +
                 '}';
     }

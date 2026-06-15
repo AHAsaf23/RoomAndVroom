@@ -15,26 +15,24 @@ public class Menu_func {
     public static int choreCount = 0;
 
     // Data structures
-    public static TransactionStack transactionHistory = new TransactionStack();
-    public static BookingQueue bookingQueue = new BookingQueue();
-    public static ChoreLinkedList choreLinkedList = new ChoreLinkedList();
-    public static ExpenseCategoryTree categoryTree = new ExpenseCategoryTree();
+    private static TransactionStack transactionHistory = new TransactionStack();
+    private static BookingQueue bookingQueue = new BookingQueue();
+    private static ChoreLinkedList choreLinkedList = new ChoreLinkedList();
+    private static ExpenseCategoryTree categoryTree = new ExpenseCategoryTree();
     public static LocalDate currentDate = LocalDate.now();
     public static LocalDate lastSummaryDate = currentDate;
 
-    // ==========================================================
-    //  SETUP
-    // ==========================================================
-
+    /* Setup */
+    // Setting up the partners that used the app.
     public static void setupPartners() {
         System.out.println("── Partner Setup ──────────────────────");
         String nameA = readName("Enter Partner A name: ");
         String nameB = readName("Enter Partner B name: ");
-        partnerA = new Partner("001", nameA.isEmpty() ? "Partner A" : nameA, 0.0F, 0);
-        partnerB = new Partner("002", nameB.isEmpty() ? "Partner B" : nameB, 0.0F, 0);
+        partnerA = new Partner(nameA.isEmpty() ? "Partner A" : nameA, 0.0, 0);
+        partnerB = new Partner(nameB.isEmpty() ? "Partner B" : nameB, 0.0, 0);
         System.out.println("Partners created: " + partnerA.getName() + " & " + partnerB.getName() + "\n");
     }
-
+    // Setting up the car that the couple uses.
     public static void setupVehicle() {
         System.out.println("── Vehicle Setup ──────────────────────");
         String plate;
@@ -52,10 +50,10 @@ public class Menu_func {
             }
             System.out.println("Invalid plate. Must contain 7-8 digits only (dashes are allowed).");
         }
-        sharedVehicle = new SharedVehicle(plate, 0);
+        sharedVehicle = new SharedVehicle(plate);
         System.out.println("Vehicle registered: " + plate + "\n");
     }
-
+    // Setting up the chores in the 1
     public static void setupChores() {
         // 1D array — for menu display
         choreList = new Chore[20];
@@ -75,9 +73,73 @@ public class Menu_func {
         System.out.println("Chores loaded: " + choreCount + " chores\n");
     }
 
-    // ==========================================================
-    //  MENU
-    // ==========================================================
+    /* Menu */
+    //  demo scenarios for the presentation
+
+    public static void loadDemoScenarios() {
+        System.out.println("\n── Loading Demo Scenarios... ────────────────");
+
+        // Scenario 1: Add an expense and update balances
+        System.out.println("[Demo] Running Scenario 1: Supermarket Expense...");
+        try {
+            // partnerA buys groceries for 400 NIS today
+            String todayDate = currentDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            Expense groceries = new Expense(400.0, partnerA, todayDate, "Groceries");
+            
+            // split the payment 50/50 and update balances
+            groceries.apply(partnerA, partnerB); 
+            
+            // add to stack and tree
+            transactionHistory.push(groceries);
+            categoryTree.insert("Groceries", 400.0);
+            
+            System.out.println("   -> Success: Added 400 NIS for 'Groceries' paid by " + partnerA.getName());
+            System.out.println("   -> " + partnerB.getName() + " was charged 200 NIS (fBalance updated).");
+        } catch (Exception e) {
+            System.out.println("   -> Error in Scenario 1: " + e.getMessage());
+        }
+
+        // Scenario 2: Book the vehicle to prevent conflicts
+        System.out.println("\n[Demo] Running Scenario 2: Vehicle Booking...");
+        try {
+            // set date for tomorrow (simulating Friday morning)
+            String tomorrowDate = currentDate.plusDays(1).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            
+            // partnerB books the car from 08:00 to 12:00
+            VehicleBooking morningBooking = new VehicleBooking(tomorrowDate, 8, 12, partnerB);
+            
+            // bypass the queue and add directly to show a booked slot
+            boolean success = sharedVehicle.addBooking(morningBooking);
+            
+            if (success) {
+                System.out.println("   -> Success: Vehicle booked by " + partnerB.getName() + " for " + tomorrowDate + " (08:00-12:00).");
+                System.out.println("   -> Overlap validation passed. " + partnerA.getName() + " will see this slot as taken.");
+            }
+        } catch (Exception e) {
+            System.out.println("   -> Error in Scenario 2: " + e.getMessage());
+        }
+
+        // Scenario 3: Complete a chore and update points
+        System.out.println("\n[Demo] Running Scenario 3: Completing a Chore...");
+        try {
+            // we will use the first chore in our list (index 0)
+            if (choreCount > 0) {
+                Chore trashChore = choreList[0]; 
+                
+                // partnerA completes the chore
+                trashChore.setAssignedPartner(partnerA);
+                trashChore.markAsDone();
+                
+                System.out.println("   -> Success: Chore '" + trashChore.toString() + "' marked as [DONE].");
+                System.out.println("   -> " + partnerA.getName() + " earned " + trashChore.getPointValue() + " fairness points!");
+                System.out.println("   -> Point comparison is now active for the weekly summary.");
+            }
+        } catch (Exception e) {
+            System.out.println("   -> Error in Scenario 3: " + e.getMessage());
+        }
+
+        System.out.println("─────────────────────────────────────────────\n");
+    }
 
     public static void printMenu() {
         if (!bookingQueue.isEmpty()) {
@@ -99,10 +161,8 @@ public class Menu_func {
         System.out.println("╚════════════════════════════════════╝");
     }
 
-    // ==========================================================
-    //  1. ADD EXPENSE — uses Stack + Tree
-    // ==========================================================
-
+    /* 1. Add Expense - uses Tree and Stack */
+    //adding the expense and split 50/50 between the users.
     public static void addExpense() {
         System.out.println("\n── Add Shared Expense ─────────────────");
         System.out.println("  Here you can log a shared expense between both partners.");
@@ -137,7 +197,7 @@ public class Menu_func {
             System.out.println("Error: " + e.getMessage());
         }
     }
-
+    // Select the expense category.
     public static String selectCategory() {
         while (true) {
             System.out.println("\n  Select category:");
@@ -198,10 +258,8 @@ public class Menu_func {
         return input.isEmpty() ? "General" : input;
     }
 
-    // ==========================================================
-    //  2. REQUEST BOOKING — adds to Queue
-    // ==========================================================
 
+    //  2. Request Booking — adds to Queue
     public static void requestBooking() {
         System.out.println("\n── Request Vehicle Booking ────────────");
         System.out.println("  Here you can request a time slot for the shared vehicle.");
@@ -260,10 +318,7 @@ public class Menu_func {
         }
     }
 
-    // ==========================================================
-    //  3. PROCESS NEXT BOOKING — dequeues + custom exception
-    // ==========================================================
-
+    //  3. Process Next Booking — dequeues + custom exception
     public static void processNextBooking() {
         System.out.println("\n── Process Next Booking Request ───────");
         System.out.println("  Here you can view all pending booking requests and approve or decline them.");
@@ -278,7 +333,7 @@ public class Menu_func {
         Partner requester = next.getBookingPartner();
 
         // Determine who is reviewing — the OTHER partner
-        Partner reviewer = requester.getId().equals(partnerA.getId()) ? partnerB : partnerA;
+        Partner reviewer = requester.getName().equals(partnerA.getName()) ? partnerB : partnerA;
 
         // Show the request details
         System.out.println("\n  Pending request:");
@@ -305,9 +360,9 @@ public class Menu_func {
             return;
         }
 
+        bookingQueue.dequeue();
         if (choice == 1) {
             // Approve — dequeue and confirm
-            bookingQueue.dequeue();
             try {
                 boolean success = sharedVehicle.addBooking(next);
                 if (!success) {
@@ -326,7 +381,6 @@ public class Menu_func {
 
         } else {
             // Decline — send a message to the requester
-            bookingQueue.dequeue();
             System.out.println("\n  Write a message to " + requester.getName() + ":");
             System.out.print("  > ");
             String message = scanner.nextLine();
@@ -342,17 +396,14 @@ public class Menu_func {
         }
     }
 
-    // ==========================================================
-    //  4. COMPLETE CHORE — removes from LinkedList
-    // ==========================================================
-
-    public static void completeChore() {
+    //  4. Complete Chore
+    public static void handleChoreCompletionMenu() {
         System.out.println("\n── Mark Chore as Done ─────────────────");
         System.out.println("  Here you can mark a household chore as completed and earn points.");
         System.out.println("  The more chores you do, the closer you are to winning the week!\n");
 
         for (int i = 0; i < choreCount; i++) {
-            System.out.println("  " + (i + 1) + ". " + choreList[i].getLabel());
+            System.out.println("  " + (i + 1) + ". " + choreList[i].toString());
         }
 
         int idx = readInt("Enter chore number (0 to cancel): ") - 1;
@@ -380,7 +431,8 @@ public class Menu_func {
 
         try {
             choreList[idx].setAssignedPartner(doer);
-            choreList[idx].completeChore();
+            choreList[idx].markAsDone();
+            System.out.println("  " + doer.getName() + " earned " + choreList[idx].getPointValue() + " fairness points!");
 
             // Chores are no longer removed from the list when completed, per user request.
 
@@ -391,10 +443,7 @@ public class Menu_func {
         }
     }
 
-    // ==========================================================
     //  5. UNDO — pops from Stack
-    // ==========================================================
-
     public static void undoLastTransaction() {
         System.out.println("\n── Undo Last Transaction ──────────────");
         System.out.println("  Here you can reverse the most recent financial transaction.");
@@ -411,7 +460,7 @@ public class Menu_func {
             FinancialTransaction last = transactionHistory.pop();   // Stack
             double half = last.getAmount() / 2;
             last.getPaidBy().updateFinancialBalance(-half);
-            Partner other = last.getPaidBy().getId().equals(partnerA.getId()) ? partnerB : partnerA;
+            Partner other = last.getPaidBy().getName().equals(partnerA.getName()) ? partnerB : partnerA;
             other.updateFinancialBalance(half);
             System.out.println("Transaction reversed successfully.");
         } catch (IllegalStateException e) {
@@ -419,10 +468,7 @@ public class Menu_func {
         }
     }
 
-    // ==========================================================
-    //  6. STATUS DASHBOARD
-    // ==========================================================
-
+    //  6. Status menu
     public static void printStatus() {
         System.out.println("\n── View Balances & Status ─────────────");
         System.out.println("  Here you can check the current financial balances, chore points,");
@@ -445,24 +491,22 @@ public class Menu_func {
                     System.out.println("\n  FINANCES:");
                     System.out.printf("    %-8s %+.2f NIS%n", n1, partnerA.getfBalance());
                     System.out.printf("    %-8s %+.2f NIS%n", n2, partnerB.getfBalance());
+                    System.out.println();
+                    categoryTree.printAll(); // Using the Binary Search Tree!
                     break;
                 case 2:
                     System.out.println("\n  CHORE POINTS:");
                     System.out.printf("    %-8s %d pts%n", n1, partnerA.getChorePoints());
                     System.out.printf("    %-8s %d pts%n", n2, partnerB.getChorePoints());
-                    System.out.println("\n  CHORES STATUS:");
-                    if (choreCount == 0) {
-                        System.out.println("    (No chores available)");
-                    } else {
-                        for (int i = 0; i < choreCount; i++) {
-                            System.out.println("    " + (i + 1) + ". " + choreList[i].getLabel());
-                        }
-                    }
+                    System.out.println();
+                    choreLinkedList.printAll(); // Using the Linked List!
                     break;
                 case 3:
-                    System.out.println("\n  VEHICLE:");
+                    System.out.println("\n  VEHICLE: " + sharedVehicle.getLicensePlate());
                     System.out.println("    " + sharedVehicle.getAvailabilityStatus());
                     System.out.println("------------------------");
+                    bookingQueue.printAll(); // Using the Queue!
+                    System.out.println();
                     sharedVehicle.printActiveBookings();
                     sharedVehicle.printWeeklySchedule();
                     break;
@@ -484,10 +528,7 @@ public class Menu_func {
         return s.length() <= maxLen ? s : s.substring(0, maxLen - 2) + "..";
     }
 
-    // ==========================================================
-    //  9. MANAGE CHORES — add / delete / edit
-    // ==========================================================
-
+    //  8. Manage Chores — add / delete / edit
     public static void manageChores() {
         System.out.println("\n  Here you can add new chores, delete existing ones, edit their");
         System.out.println("  details (name, points, frequency), or view the full chore list.\n");
@@ -536,7 +577,7 @@ public class Menu_func {
             return;
         }
         for (int i = 0; i < choreCount; i++) {
-            System.out.println("  " + (i + 1) + ". " + choreList[i].getLabel());
+            System.out.println("  " + (i + 1) + ". " + choreList[i].toString());
         }
     }
 
@@ -564,7 +605,7 @@ public class Menu_func {
         RecurringChore chore = new RecurringChore(desc, points, null, intervalDays);
         choreList[choreCount++] = chore;
         choreLinkedList.add(chore);
-        System.out.println("  Chore added: " + chore.getLabel());
+        System.out.println("  Chore added: " + chore);
     }
 
     public static void deleteChore() {
@@ -655,10 +696,7 @@ public class Menu_func {
         return timesPerWeek;
     }
 
-    // ==========================================================
-    //  8. SETTLE UP (Debt Settlement)
-    // ==========================================================
-
+    //  7. Settle Up (Debt Settlement)
     public static void settleUp() {
         System.out.println("\n── Settle Up ──────────────────────────");
         System.out.println("  Here you can clear all outstanding debts between partners.");
@@ -691,10 +729,7 @@ public class Menu_func {
         System.out.println("Debt settled successfully.");
     }
 
-    // ==========================================================
-    //  WEEKLY SUMMARY
-    // ==========================================================
-
+    //  Weekly Summary
     public static void checkWeeklySummary() {
         long daysPassed = java.time.temporal.ChronoUnit.DAYS.between(lastSummaryDate, currentDate);
 
@@ -730,9 +765,9 @@ public class Menu_func {
             else if (partnerB.getChorePoints() > partnerA.getChorePoints()) winner = partnerB;
 
             if (winner != null) {
-                System.out.println("\n🏆 " + winner.getName() + " wins this week with " + winner.getChorePoints() + " pts!");
-                System.out.println("  " + winner.getName() + ", as this week's winner you can tell your partner");
-                System.out.println("  which chore you're skipping — they'll cover it for next week. Good job! 🎉");
+                System.out.println("\n" + winner.getName() + " wins this week with " + winner.getChorePoints() + " pts!");
+                System.out.println(" " + winner.getName() + ", as this week's winner you can tell your partner");
+                System.out.println("  which chore you're skipping — they'll cover it for next week. Good job! ");
             } else {
                 System.out.println("\nIt's a tie! No reward awarded this week.");
             }
@@ -753,10 +788,7 @@ public class Menu_func {
         }
     }
 
-    // ==========================================================
-    //  HELPERS
-    // ==========================================================
-
+    //  Helpers
     public static int readInt(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -779,9 +811,7 @@ public class Menu_func {
         }
     }
 
-    /**
-     * Reads a name from the user. Names can only contain letters and spaces.
-     */
+    //Reads a name from the user. Names can only contain letters and spaces
     public static String readName(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -789,16 +819,14 @@ public class Menu_func {
             if (name.isEmpty()) {
                 return name;
             }
-            if (name.matches("[a-zA-Z\u0590-\u05FF ]+")) {
+            if (name.matches("[a-zA-Z ]+")) {
                 return name;
             }
-            System.out.println("Invalid name. Names can only contain letters and spaces.");
+            System.out.println("  Name must contain only English letters and spaces.");
         }
     }
 
-    /**
-     * Asks the user to choose between partner 1 or 2. Loops until valid input.
-     */
+    //Asks the user to choose between partner 1 or 2. Loops until valid input
     public static Partner readPartnerChoice() {
         while (true) {
             int choice = readInt("Choice (1 or 2): ");
@@ -808,22 +836,9 @@ public class Menu_func {
         }
     }
 
-    /**
-     * Reads an integer in a specific range. Loops until valid.
-     * Returns the chosen value, or -1 if the user enters 0 to cancel.
-     */
-    public static int readIntInRange(String prompt, int min, int max) {
-        while (true) {
-            int val = readInt(prompt);
-            if (val == 0) return -1;
-            if (val >= min && val <= max) return val;
-            System.out.println("Please enter a number between " + min + " and " + max + " (or 0 to cancel).");
-        }
-    }
 
-    /**
-     * Asks a yes/no confirmation question. Returns true if confirmed.
-     */
+
+    // Asks a yes/no confirmation question. Returns true if confirmed.
     public static boolean confirmAction(String message) {
         System.out.println("\n  " + message);
         System.out.println("  1. Yes  0. No");

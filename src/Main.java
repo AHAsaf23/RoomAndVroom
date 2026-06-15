@@ -13,6 +13,8 @@ public class Main {
         Menu_func.setupVehicle();
         Menu_func.setupChores();
 
+        Menu_func.loadDemoScenarios();
+
         boolean running = true;
         while (running) {
             Menu_func.checkWeeklySummary();
@@ -30,7 +32,7 @@ public class Main {
                     Menu_func.processNextBooking();
                     break;
                 case 4:
-                    Menu_func.completeChore();
+                    Menu_func.handleChoreCompletionMenu();
                     break;
                 case 5:
                     Menu_func.undoLastTransaction();

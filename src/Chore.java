@@ -9,9 +9,7 @@ public class Chore {
 
     // ===================== Constructors =====================
 
-    /**
-     * Default constructor
-     */
+    // this is a default constructor for the chore class
     public Chore() {
         this.description = "Unknown chore";
         this.pointValue = 1;
@@ -19,9 +17,8 @@ public class Chore {
         this.isCompleted = false;
     }
 
-    /**
-     * Full constructor
-     */
+    // a full constructor, defines what the chore is,
+    // how many points, which partner on it, and updates status to false
     public Chore(String description, int pointValue, Partner assignedPartner) {
         this.description = description;
         this.pointValue = pointValue;
@@ -29,7 +26,7 @@ public class Chore {
         this.isCompleted = false;
     }
 
-    // ===================== Getters & Setters =====================
+    // getters and setters
 
     public String getDescription() {
         return description;
@@ -64,44 +61,30 @@ public class Chore {
         isCompleted = completed;
     }
 
-    // ===================== Methods =====================
+    // methods
 
     /**
      * Marks the chore as completed and awards points to the assigned partner.
-     * Throws exception if no partner is assigned or chore is already done.
      */
-    public void completeChore() {
-        if (assignedPartner == null) {
-            throw new IllegalStateException("Cannot complete chore: no partner assigned to '" + description + "'.");
-        }
-        if (isCompleted) {
-            throw new IllegalStateException("Chore '" + description + "' is already completed.");
-        }
+    // checks for assigned partner, marks the chore as completed
+    // and prints if succeeded the chore's details
+    public void markAsDone() {
         this.isCompleted = true;
         assignedPartner.addChorePoints(this.pointValue);
         System.out.println("✔ Chore completed: '" + description + "' | +" + pointValue + " pts → " + assignedPartner.getName());
     }
 
 
-    /**
-     * Resets the chore for re-assignment (used for recurring chores).
-     */
+    // resets a chore and prints when done
     public void reset() {
         this.isCompleted = false;
         System.out.println("Chore '" + description + "' has been reset and is ready to be assigned again.");
     }
 
-    /**
-     * Returns a formatted chore label with status indicator.
-     * Uses String methods: substring, toUpperCase, charAt, trim
-     */
-    public String getLabel() {
-        String shortDesc = description.length() > 20
-                ? description.substring(0, 20).trim() + "..."
-                : description;
-
-        // Capitalize each word for a clean display
-        String[] words = shortDesc.split(" ");
+    @Override
+    public String toString() {
+        // capitalize for a better viewing experience
+        String[] words = description.split(" ");
         StringBuilder capitalized = new StringBuilder();
         for (int i = 0; i < words.length; i++) {
             if (!words[i].isEmpty()) {
@@ -113,16 +96,5 @@ public class Chore {
 
         String status = isCompleted ? "[DONE]   " : "[PENDING]";
         return status + " " + capitalized + " (" + pointValue + " pts)";
-    }
-
-    @Override
-    public String toString() {
-        String partnerName = (assignedPartner != null) ? assignedPartner.getName() : "Unassigned";
-        return "Chore{" +
-                "description='" + description + '\'' +
-                ", points=" + pointValue +
-                ", assignedTo='" + partnerName + '\'' +
-                ", completed=" + isCompleted +
-                '}';
     }
 }

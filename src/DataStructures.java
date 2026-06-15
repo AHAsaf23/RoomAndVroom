@@ -1,11 +1,5 @@
-
-
-
-// ══════════════════════════════════════════════════════════════════════════════
-//  1. STACK — Transaction history (supports undo)
-// ══════════════════════════════════════════════════════════════════════════════
-
-class TransactionStack {
+//  Transaction history stack
+ class TransactionStack {
 
     private static class Node {
         FinancialTransaction data;
@@ -23,9 +17,7 @@ class TransactionStack {
         this.top = null;
     }
 
-    /**
-     * Push a transaction onto the stack
-     */
+    // Adds a new transaction to the top of the stack
     public void push(FinancialTransaction transaction) {
         Node newNode = new Node(transaction);
         newNode.next = top;
@@ -33,23 +25,19 @@ class TransactionStack {
         System.out.println("Transaction added: " + transaction.getSummary());
     }
 
-    /**
-     * Pop the most recent transaction (undo)
-     */
+    // Removes and returns the most recent transaction from the stack
     public FinancialTransaction pop() {
-        if (isEmpty()) {
-            throw new IllegalStateException("Cannot undo: transaction history is empty.");
-        }
         FinancialTransaction data = top.data;
         top = top.next;
         System.out.println("Undone: " + data.getSummary());
         return data;
     }
-
+    // Checks if the stack is completely empty
     public boolean isEmpty() {
         return top == null;
     }
 
+    // Prints all the transactions we saved from newest to oldest
     public void printAll() {
         System.out.println("── Transaction History ────────────────");
         if (isEmpty()) {
@@ -66,10 +54,8 @@ class TransactionStack {
 }
 
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  2. QUEUE — Pending vehicle booking requests
-// ══════════════════════════════════════════════════════════════════════════════
 
+//  Pending vehicle booking requests (queue)
 class BookingQueue {
 
     private static class Node {
@@ -90,18 +76,15 @@ class BookingQueue {
         this.rear = null;
     }
 
-    /**
-     * Add a booking request to the back of the queue
-     */
+    // Adds a new booking request to the back of the queue and prints a message
+
     public void enqueue(VehicleBooking booking) {
         enqueueSilent(booking);
         System.out.println("Booking request added for " +
                 booking.getBookingPartner().getName() + " on " + booking.getBookingDate());
     }
 
-    /**
-     * Add a booking request silently (used for internal queue management)
-     */
+    // We use this method when we advance a day and need to put future bookings back into the queue
     public void enqueueSilent(VehicleBooking booking) {
         Node newNode = new Node(booking);
         if (rear != null) rear.next = newNode;
@@ -109,9 +92,7 @@ class BookingQueue {
         if (front == null) front = newNode;
     }
 
-    /**
-     * Process (remove) the next booking request
-     */
+    // Removes the next booking request from the queue and prints a message to the screen
     public VehicleBooking dequeue() {
         VehicleBooking data = dequeueSilent();
         System.out.println("Processing booking for " +
@@ -119,24 +100,16 @@ class BookingQueue {
         return data;
     }
 
-    /**
-     * Process (remove) the next booking request silently
-     */
+    // Removes the next booking request from the queue silently
     public VehicleBooking dequeueSilent() {
-        if (isEmpty()) {
-            throw new IllegalStateException("No pending booking requests.");
-        }
         VehicleBooking data = front.data;
         front = front.next;
         if (front == null) rear = null;
         return data;
     }
 
-    /**
-     * Peek at the next request without removing
-     */
+    // Lets us look at the next request in line without actually removing it
     public VehicleBooking peek() {
-        if (isEmpty()) throw new IllegalStateException("Queue is empty.");
         return front.data;
     }
 
@@ -144,6 +117,7 @@ class BookingQueue {
         return front == null;
     }
 
+    // Counts how many bookings are currently in the queue
     public int size() {
         int count = 0;
         Node current = front;
@@ -169,11 +143,7 @@ class BookingQueue {
     }
 }
 
-
-// ══════════════════════════════════════════════════════════════════════════════
-//  3. LINKED LIST — Active chore list
-// ══════════════════════════════════════════════════════════════════════════════
-
+//  Active chore list (Linked list)
 class ChoreLinkedList {
 
     private static class Node {
@@ -192,9 +162,7 @@ class ChoreLinkedList {
         this.head = null;
     }
 
-    /**
-     * Add a chore to the end of the list
-     */
+    // Adds a new chore to the very end of the linked list
     public void add(Chore chore) {
         Node newNode = new Node(chore);
         if (head == null) {
@@ -207,9 +175,7 @@ class ChoreLinkedList {
 
     }
 
-    /**
-     * Remove a chore by description
-     */
+    // Searches for a chore by its name and removes it from the list. Returns true if successful.
     public boolean remove(String description) {
         if (head == null) return false;
 
@@ -229,10 +195,12 @@ class ChoreLinkedList {
         return false;
     }
 
+    // Checks if the chore list is completely empty
     public boolean isEmpty() {
         return head == null;
     }
 
+    // Prints all the chores one by one
     public void printAll() {
         System.out.println("── Chore List ─────────────────────────");
         if (isEmpty()) {
@@ -242,16 +210,15 @@ class ChoreLinkedList {
         Node current = head;
         int i = 1;
         while (current != null) {
-            System.out.println("  " + i++ + ". " + current.data.getLabel());
+            System.out.println("  " + i++ + ". " + current.data.toString());
             current = current.next;
         }
     }
 }
 
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  4. BINARY SEARCH TREE — Expense categories with running totals
-// ══════════════════════════════════════════════════════════════════════════════
+
+//  Binary Search Tree of the expense categories with amount spent
 
 class ExpenseCategoryTree {
 
@@ -276,16 +243,15 @@ class ExpenseCategoryTree {
         this.root = null;
     }
 
-    /**
-     * Insert an expense amount into its category node (or update if exists)
-     */
+    // Inserts a new expense into its category, or adds the amount to an existing one
     public void insert(String category, double amount) {
         root = insertRec(root, category, amount);
     }
 
+    // Helper function that uses recursion to find the right spot in the tree
     private Node insertRec(Node node, String category, double amount) {
         if (node == null) {
-            System.out.println("🌿 New category: " + category + " (" + String.format("%.2f", amount) + " NIS)");
+            System.out.println("  New category: " + category + " (" + String.format("%.2f", amount) + " NIS)");
             return new Node(category, amount);
         }
         int cmp = category.compareToIgnoreCase(node.category);
@@ -297,15 +263,13 @@ class ExpenseCategoryTree {
             // Category exists — update total
             node.totalAmount += amount;
             node.count++;
-            System.out.println("📊 Updated " + category + ": total = " + String.format("%.2f", node.totalAmount) + " NIS");
+            System.out.println("  Updated " + category + ": total = " + String.format("%.2f", node.totalAmount) + " NIS");
         }
         return node;
     }
 
 
-    /**
-     * Print all categories in alphabetical order (in-order traversal)
-     */
+    // Prints all categories in alphabetical order (in-order traversal)
     public void printAll() {
         System.out.println("── Expense Categories ─────────────────");
         if (root == null) {
@@ -315,6 +279,7 @@ class ExpenseCategoryTree {
         printInOrder(root);
     }
 
+    // Helper function that uses recursion to print the tree alphabetically (left, root, right)
     private void printInOrder(Node node) {
         if (node == null) return;
         printInOrder(node.left);

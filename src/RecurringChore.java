@@ -5,14 +5,16 @@ import java.time.temporal.ChronoUnit;
 
 public class RecurringChore extends Chore {
 
-    // ===================== Fields =====================
+    //defining all the chore's fields
     private int timesPerWeek;       // How many times it repeats per week
     private int timesCompleted;     // How many times this chore has been done total
     private int timesCompletedThisWeek; // How many times completed this week
     private String lastCompletedDate;
 
-    // ===================== Constructors =====================
 
+    //CONSTRUCTORS
+
+    //default constructor, defines default values
     public RecurringChore() {
         super();
         this.timesPerWeek = 1;
@@ -21,6 +23,7 @@ public class RecurringChore extends Chore {
         this.lastCompletedDate = null;
     }
 
+    //full constructor, builds a new chore
     public RecurringChore(String description, int pointValue, Partner assignedPartner,
                           int timesPerWeek) {
         super(description, pointValue, assignedPartner);
@@ -30,8 +33,8 @@ public class RecurringChore extends Chore {
         this.lastCompletedDate = null;
     }
 
-    // ===================== Getters & Setters =====================
 
+    //GETTERS AND SETTERS
     public int getTimesPerWeek() {
         return timesPerWeek;
     }
@@ -52,22 +55,21 @@ public class RecurringChore extends Chore {
         this.timesCompletedThisWeek = 0;
     }
 
-    // ===================== Methods =====================
 
-    /**
-     * Completes the chore, records the date, then auto-resets for next cycle.
-     * Overrides the parent completeChore() to add recurring logic.
-     */
+   //METHODS
     @Override
-    public void completeChore() {
-        super.completeChore();              // Award points via parent logic
+    // marks a chore as done, updates the chore's value
+    // awards the points to the assigned partner
+    // and prints if succeeded
+    public void markAsDone() {
+        super.markAsDone();              // Award points via parent logic
         this.timesCompleted++;
         this.timesCompletedThisWeek++;
         this.lastCompletedDate = Menu_func.getTodayString();
-
-        System.out.println("🔄 Recurring chore completed.");
     }
 
+    //resets a chore if there has passed enough
+    //time since last done
     public void checkAndResetAvailability() {
         if (super.isCompleted() && lastCompletedDate != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -77,16 +79,13 @@ public class RecurringChore extends Chore {
             long daysPassed = ChronoUnit.DAYS.between(lastDate, today);
             double requiredDays = 7.0 / timesPerWeek;
             if (daysPassed >= requiredDays) {
-                System.out.println("⏰ Recurring cycle finished for: '" + getDescription() + "' -> Chore is available again!");
                 super.reset();
                 this.lastCompletedDate = null;
             }
         }
     }
 
-    /**
-     * Returns a human-readable description of how often this chore repeats.
-     */
+    //prints the chore's needed frequency
     public String getScheduleDescription() {
         if (timesPerWeek == 7) return "every day";
         if (timesPerWeek == 1) return "once a week";
@@ -94,9 +93,9 @@ public class RecurringChore extends Chore {
     }
 
     @Override
-    public String getLabel() {
+    public String toString() {
         checkAndResetAvailability();
-        String base = super.getLabel();
+        String base = super.toString();
         return base + " [" + getScheduleDescription() + "]";
     }
 
@@ -104,14 +103,5 @@ public class RecurringChore extends Chore {
     public boolean isCompleted() {
         checkAndResetAvailability();
         return super.isCompleted();
-    }
-
-    @Override
-    public String toString() {
-        return "RecurringChore{" +
-                "description='" + getDescription() + '\'' +
-                ", timesPerWeek=" + timesPerWeek +
-                ", timesCompleted=" + timesCompleted +
-                '}';
     }
 }

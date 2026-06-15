@@ -1,26 +1,23 @@
 
 public abstract class FinancialTransaction {
 
-    // ===================== Shared Fields =====================
+    /* Shared Fields */
     protected double amount;
     protected Partner paidBy;
     protected String date;      // Format: "DD/MM/YYYY"
 
-    // ===================== Constructor =====================
+    /* Constructor */
+    // full constructor
     public FinancialTransaction(double amount, Partner paidBy, String date) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Transaction amount must be positive. Got: " + amount);
-        }
         this.amount = amount;
         this.paidBy = paidBy;
         this.date = date;
     }
 
-    // ===================== Getters & Setters =====================
+    /* Getters & Setters */
     public double getAmount() {
         return amount;
     }
-
     public void setAmount(double amount) {
         this.amount = amount;
     }
@@ -28,7 +25,6 @@ public abstract class FinancialTransaction {
     public Partner getPaidBy() {
         return paidBy;
     }
-
     public void setPaidBy(Partner paidBy) {
         this.paidBy = paidBy;
     }
@@ -36,43 +32,35 @@ public abstract class FinancialTransaction {
     public String getDate() {
         return date;
     }
-
     public void setDate(String date) {
         this.date = date;
     }
 
-    // ===================== Abstract Methods =====================
+    /* Abstract Methods */
 
-    /**
-     * Each subclass must define how it applies itself to the partners' balances.
-     */
+    // changes the balances of the partners based on the transaction
     public abstract void apply(Partner partnerA, Partner partnerB);
 
-    /**
-     * Each subclass must provide a short summary line.
-     */
+    // returns a short text describing the transaction
     public abstract String getSummary();
 }
 
 
-// =============================================================================
+// ------------------------------------------------------------------
 
-/**
- * Expense.java - Records a shared purchase paid by one partner.
- * Splits the cost evenly and updates both partners' financial balances.
- */
+// represents a purchase paid by one partner that needs to be split
 class Expense extends FinancialTransaction {
 
     private String category;    // e.g. "Groceries", "Rent", "Utilities"
 
-    // ===================== Constructors =====================
-
+    /* Constructors */
+    // full constructor
     public Expense(double amount, Partner paidBy, String date, String category) {
         super(amount, paidBy, date);
         this.category = category;
     }
 
-    // ===================== Getters & Setters =====================
+    /* Getters & Setters */
     public String getCategory() {
         return category;
     }
@@ -81,19 +69,16 @@ class Expense extends FinancialTransaction {
         this.category = category;
     }
 
-    // ===================== Methods =====================
+    /* Methods */
 
-    /**
-     * Splits the expense 50/50 between the two partners.
-     * The paying partner gets credited half; the other is debited half.
-     */
+    // splits the cost equally between both partners
     @Override
     public void apply(Partner partnerA, Partner partnerB) {
         double half = this.amount / 2.0;
 
         // Identify who paid and who owes
         Partner payer = this.paidBy;
-        Partner debtor = payer.getId().equals(partnerA.getId()) ? partnerB : partnerA;
+        Partner debtor = payer.getName().equals(partnerA.getName()) ? partnerB : partnerA;
 
         payer.updateFinancialBalance(half);     // payer is owed half back
         debtor.updateFinancialBalance(-half);   // debtor owes half
@@ -104,6 +89,7 @@ class Expense extends FinancialTransaction {
     }
 
 
+    // return the summary of who paid, how much was paid, the category that was paid for and the date it was processed
     @Override
     public String getSummary() {
         return "[EXPENSE] " + String.format("%.2f", amount) + " NIS | " +
@@ -119,34 +105,28 @@ class Expense extends FinancialTransaction {
     }
 }
 
-// =============================================================================
+// ------------------------------------------------------------------
 
-/**
- * DebtSettlement.java - Records a direct payment from one partner to another to settle debts.
- */
+// represents a direct payment from one partner to the other to settle debts
 class DebtSettlement extends FinancialTransaction {
 
-    // ===================== Constructors =====================
+    /* Constructors */
     public DebtSettlement(double amount, Partner paidBy, String date) {
         super(amount, paidBy, date);
     }
 
-    // ===================== Methods =====================
+    /* Methods */
 
-    /**
-     * Applies the debt settlement.
-     * The payer's balance increases (gets closer to 0 or positive).
-     * The receiver's balance decreases (gets closer to 0).
-     */
+    // updates the balances after a direct payment is made
     @Override
     public void apply(Partner partnerA, Partner partnerB) {
         Partner payer = this.paidBy;
-        Partner receiver = payer.getId().equals(partnerA.getId()) ? partnerB : partnerA;
+        Partner receiver = payer.getName().equals(partnerA.getName()) ? partnerB : partnerA;
 
         payer.updateFinancialBalance(amount);
         receiver.updateFinancialBalance(-amount);
 
-        System.out.println("✅ Debt Settlement applied: " + payer.getName() + 
+        System.out.println("  Debt Settlement applied: " + payer.getName() + 
                 " paid " + String.format("%.2f", amount) + " NIS to " + receiver.getName() + ".");
     }
 

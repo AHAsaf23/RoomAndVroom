@@ -1,36 +1,31 @@
 
 interface Alertable {
-    /**
-     * Sends an alert message to the relevant partner(s).
-     * @param message the alert content
-     */
+
+    //sends an alert message to the relevant partner
     void sendAlert(String message);
 
 }
 
 
-// =============================================================================
-
-
 public class VehicleBooking implements Alertable {
 
-    // ===================== Fields =====================
+    //defining the class fields
     private String bookingDate;         // Format: "DD/MM/YYYY"
     private int startHour;              // 0–23
-    private int endHour;                // 0–23, must be > startHour
-    private Partner bookingPartner;
-    private boolean isCancelled;
+    private int endHour;                // 0–23, must be greater than start hour
+    private Partner bookingPartner;     // the assigned partner to the car
+    private boolean isCanceled;        // if the booking date is canceled true / false
 
-    // ===================== Constructors =====================
-
+    /* Constructors */
+    //default constructor
     public VehicleBooking() {
         this.bookingDate = "01/01/2000";
         this.startHour = 0;
         this.endHour = 1;
         this.bookingPartner = null;
-        this.isCancelled = false;
+        this.isCanceled = false;
     }
-
+    // full constructor
     public VehicleBooking(String bookingDate, int startHour, int endHour, Partner bookingPartner) {
         if (endHour <= startHour) {
             throw new IllegalArgumentException("End hour (" + endHour + ") must be after start hour (" + startHour + ").");
@@ -39,10 +34,10 @@ public class VehicleBooking implements Alertable {
         this.startHour = startHour;
         this.endHour = endHour;
         this.bookingPartner = bookingPartner;
-        this.isCancelled = false;
+        this.isCanceled = false;
     }
 
-    // ===================== Getters & Setters =====================
+    /* Getters & Setters */
 
     public String getBookingDate() { return bookingDate; }
     public void setBookingDate(String bookingDate) { this.bookingDate = bookingDate; }
@@ -56,9 +51,9 @@ public class VehicleBooking implements Alertable {
     public Partner getBookingPartner() { return bookingPartner; }
     public void setBookingPartner(Partner bookingPartner) { this.bookingPartner = bookingPartner; }
 
-    public boolean isCancelled() { return isCancelled; }
+    public boolean isCanceled() { return isCanceled; }
 
-    // ===================== Methods =====================
+    /* Methods */
 
     /**
      * Checks whether this booking overlaps with another booking on the same date.
@@ -67,27 +62,27 @@ public class VehicleBooking implements Alertable {
      */
     public boolean validateNoOverlap(VehicleBooking other) {
         if (!this.bookingDate.equals(other.bookingDate)) return false; // different days — no conflict
-        if (other.isCancelled) return false;
+        if (other.isCanceled) return false;
 
         // Overlap exists if one booking starts before the other ends
         return this.startHour < other.endHour && other.startHour < this.endHour;
     }
 
 
-    // ===================== Alertable Implementation =====================
+    /* Alertable Implementation */
 
     @Override
     public void sendAlert(String message) {
         String partnerName = (bookingPartner != null) ? bookingPartner.getName() : "Unknown";
         // Uses String method: startsWith
-        String prefix = message.startsWith("⚠") ? "" : "🔔 ALERT → ";
+        String prefix = message.startsWith("⚠") ? "" : "ALERT → ";
         System.out.println(prefix + "[" + partnerName + "] " + message);
     }
 
     @Override
     public String toString() {
         String partnerName = (bookingPartner != null) ? bookingPartner.getName() : "None";
-        String status = isCancelled ? "CANCELLED" : "ACTIVE";
+        String status = isCanceled ? "CANCELLED" : "ACTIVE";
         return "VehicleBooking{" +
                 "date='" + bookingDate + '\'' +
                 ", time=" + startHour + ":00–" + endHour + ":00" +

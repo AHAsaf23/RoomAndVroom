@@ -1,7 +1,7 @@
 
 public class SharedVehicle {
 
-    // ===================== Constants =====================
+    // Constants
     private static int MAX_BOOKINGS = 50;
     private static int DAYS_IN_WEEK = 7;
     private static int HOURS_IN_DAY = 24;
@@ -9,53 +9,48 @@ public class SharedVehicle {
     // Day name lookup
     private static String[] DAY_NAMES = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
 
-    // ===================== Fields =====================
-    private String licensePlate;
-    private double mileage;
+    /* Fields */
+    private String licensePlate; // License Plate between 7 and 8 digits
     private VehicleBooking[] bookingList;    // 1D array — all bookings
     private int bookingCount;
 
     // 2D array: weeklySchedule[day][hour] = true if that slot is taken
     private boolean[][] weeklySchedule;     // [0-6 days][0-23 hours]
 
-    // ===================== Constructors =====================
-
+    /* Constructors */
+    // default constructor
     public SharedVehicle() {
         this.licensePlate = "000-00-000";
-        this.mileage = 0.0;
         this.bookingList = new VehicleBooking[MAX_BOOKINGS];
         this.bookingCount = 0;
         this.weeklySchedule = new boolean[DAYS_IN_WEEK][HOURS_IN_DAY];
     }
-
-    public SharedVehicle(String licensePlate, double mileage) {
+    // full constructor
+    public SharedVehicle(String licensePlate) {
         this.licensePlate = licensePlate;
-        this.mileage = mileage;
         this.bookingList = new VehicleBooking[MAX_BOOKINGS];
         this.bookingCount = 0;
         this.weeklySchedule = new boolean[DAYS_IN_WEEK][HOURS_IN_DAY];
     }
 
-    // ===================== Getters & Setters =====================
-
+    /* Getters & Setters */
     public String getLicensePlate() { return licensePlate; }
     public void setLicensePlate(String licensePlate) { this.licensePlate = licensePlate; }
 
-    public double getMileage() { return mileage; }
-
     public int getBookingCount() { return bookingCount; }
 
+    // Resets the bookings for the next week
     public void resetWeeklyBookings() {
         this.bookingCount = 0;
         this.weeklySchedule = new boolean[DAYS_IN_WEEK][HOURS_IN_DAY];
     }
 
-    // ===================== Methods =====================
+    /* Methods */
 
     /**
-     * Attempts to add a new booking.
-     * Checks against existing bookings for overlap before confirming.
-     * @return true if booking was successfully added, false if there's a conflict
+     * Try to add a new vehicle booking.
+     * checking if there is an overlap with another booking.
+     * @return true if booking was added, false if there's an overlap.
      */
     public boolean addBooking(VehicleBooking newBooking) {
         if (bookingCount >= MAX_BOOKINGS) {
@@ -72,7 +67,7 @@ public class SharedVehicle {
             }
         }
 
-        // No conflict — add the booking
+        // No conflict = add the booking
         bookingList[bookingCount] = newBooking;
         bookingCount++;
 
@@ -91,14 +86,10 @@ public class SharedVehicle {
     }
 
 
-    /**
-     * Returns availability status string based on active bookings today.
-     * Uses String method: indexOf, length
-     */
     public String getAvailabilityStatus() {
         int activeCount = 0;
         for (int i = 0; i < bookingCount; i++) {
-            if (!bookingList[i].isCancelled()) activeCount++;
+            if (!bookingList[i].isCanceled()) activeCount++;
         }
 
         String plate = licensePlate;
@@ -113,7 +104,7 @@ public class SharedVehicle {
     }
 
     /**
-     * Prints the weekly schedule grid using the 2D array.
+     * Prints the weekly schedule using the 2D array.
      * Shows which hours are occupied per day.
      */
     public void printWeeklySchedule() {
@@ -141,7 +132,7 @@ public class SharedVehicle {
         System.out.println("=== Active Bookings for " + licensePlate + " ===");
         boolean found = false;
         for (int i = 0; i < bookingCount; i++) {
-            if (!bookingList[i].isCancelled()) {
+            if (!bookingList[i].isCanceled()) {
                 System.out.println("  " + (i + 1) + ". " + bookingList[i]);
                 found = true;
             }
@@ -149,11 +140,10 @@ public class SharedVehicle {
         if (!found) System.out.println("  No active bookings.");
     }
 
-    // ===================== Private Helpers =====================
+    /* Private Helpers */
 
     /**
      * Maps a date string "DD/MM/YYYY" to a day-of-week index (0=Sunday).
-     * Simplified version — uses day-of-month mod 7 as a demo approximation.
      */
     private int getDayIndex(String date) {
         try {
@@ -168,7 +158,6 @@ public class SharedVehicle {
     public String toString() {
         return "SharedVehicle{" +
                 "licensePlate='" + licensePlate + '\'' +
-                ", mileage=" + String.format("%.1f", mileage) + " km" +
                 ", bookings=" + bookingCount +
                 '}';
     }

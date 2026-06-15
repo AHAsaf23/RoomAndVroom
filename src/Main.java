@@ -1,11 +1,11 @@
 public class Main {
-    static void main(String[] args) {
+    public static void main(String[] args) {
         System.out.println("╔════════════════════════════════════════════════╗");
-        System.out.println("║         Welcome to Room & Vroom! 🏠🚗          ║");
+        System.out.println("║            Welcome to Room & Vroom!            ║");
         System.out.println("╠════════════════════════════════════════════════╣");
         System.out.println("║  Your all-in-one app for managing shared       ║");
         System.out.println("║  household payments, chores, and your vehicle. ║");
-        System.out.println("║  Stay fair, stay organized, stay happy. 🤝     ║");
+        System.out.println("║  Stay fair, stay organized, stay happy.        ║");
         System.out.println("╚════════════════════════════════════════════════╝");
         System.out.println();
 

@@ -98,15 +98,26 @@ public class Chore {
 
     /**
      * Returns a formatted chore label with status indicator.
-     * Uses String methods: substring, toUpperCase, replace
+     * Uses String methods: substring, toUpperCase, charAt, trim
      */
     public String getLabel() {
         String shortDesc = description.length() > 20
-                ? description.substring(0, 20) + "..."
+                ? description.substring(0, 20).trim() + "..."
                 : description;
-        String status = isCompleted ? "[DONE]" : "[PENDING]";
-        String label = shortDesc.replace(" ", "_").toUpperCase();
-        return status + " " + label + " (" + pointValue + " pts)";
+
+        // Capitalize each word for a clean display
+        String[] words = shortDesc.split(" ");
+        StringBuilder capitalized = new StringBuilder();
+        for (int i = 0; i < words.length; i++) {
+            if (!words[i].isEmpty()) {
+                capitalized.append(Character.toUpperCase(words[i].charAt(0)))
+                           .append(words[i].substring(1));
+                if (i < words.length - 1) capitalized.append(" ");
+            }
+        }
+
+        String status = isCompleted ? "[DONE]   " : "[PENDING]";
+        return status + " " + capitalized + " (" + pointValue + " pts)";
     }
 
     @Override

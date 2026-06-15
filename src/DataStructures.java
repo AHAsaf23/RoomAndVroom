@@ -40,7 +40,7 @@ class TransactionStack {
         Node newNode = new Node(transaction);
         newNode.next = top;
         top = newNode;
-        System.out.println("📥 Transaction added: " + transaction.getSummary());
+        System.out.println("Transaction added: " + transaction.getSummary());
     }
 
     /**
@@ -52,7 +52,7 @@ class TransactionStack {
         }
         FinancialTransaction data = top.data;
         top = top.next;
-        System.out.println("↩️  Undone: " + data.getSummary());
+        System.out.println("Undone: " + data.getSummary());
         return data;
     }
 
@@ -104,26 +104,41 @@ class BookingQueue {
      * Add a booking request to the back of the queue
      */
     public void enqueue(VehicleBooking booking) {
+        enqueueSilent(booking);
+        System.out.println("Booking request added for " +
+                booking.getBookingPartner().getName() + " on " + booking.getBookingDate());
+    }
+
+    /**
+     * Add a booking request silently (used for internal queue management)
+     */
+    public void enqueueSilent(VehicleBooking booking) {
         Node newNode = new Node(booking);
         if (rear != null) rear.next = newNode;
         rear = newNode;
         if (front == null) front = newNode;
-        System.out.println("📋 Booking request added for " +
-                booking.getBookingPartner().getName() + " on " + booking.getBookingDate());
     }
 
     /**
      * Process (remove) the next booking request
      */
     public VehicleBooking dequeue() {
+        VehicleBooking data = dequeueSilent();
+        System.out.println("Processing booking for " +
+                data.getBookingPartner().getName() + " on " + data.getBookingDate());
+        return data;
+    }
+
+    /**
+     * Process (remove) the next booking request silently
+     */
+    public VehicleBooking dequeueSilent() {
         if (isEmpty()) {
             throw new IllegalStateException("No pending booking requests.");
         }
         VehicleBooking data = front.data;
         front = front.next;
         if (front == null) rear = null;
-        System.out.println("✔ Processing booking for " +
-                data.getBookingPartner().getName() + " on " + data.getBookingDate());
         return data;
     }
 

@@ -199,7 +199,7 @@ class ChoreLinkedList {
             while (current.next != null) current = current.next;
             current.next = newNode;
         }
-        System.out.println("➕ Chore added: " + chore.getDescription());
+
     }
 
     /**
@@ -210,7 +210,6 @@ class ChoreLinkedList {
 
         if (head.data.getDescription().equals(description)) {
             head = head.next;
-            System.out.println("➖ Removed: " + description);
             return true;
         }
 
@@ -218,7 +217,6 @@ class ChoreLinkedList {
         while (current.next != null) {
             if (current.next.data.getDescription().equals(description)) {
                 current.next = current.next.next;
-                System.out.println("➖ Removed: " + description);
                 return true;
             }
             current = current.next;

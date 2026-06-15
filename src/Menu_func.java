@@ -600,9 +600,9 @@ public class Menu_func {
             else if (partnerB.getChorePoints() > partnerA.getChorePoints()) winner = partnerB;
 
             if (winner != null) {
-                System.out.println("\n🏆 WINNER THIS WEEK: " + winner.getName() + " 🏆");
-
-                System.out.println(winner.getName() + " is the winner of the week, so S/He can choose one chore to not do this week!");
+                System.out.println("\n🏆 " + winner.getName() + " wins this week with " + winner.getChorePoints() + " pts!");
+                System.out.println("  " + winner.getName() + ", as this week's winner you can tell your partner");
+                System.out.println("  which chore you're skipping — they'll cover it for next week. Good job! 🎉");
             } else {
                 System.out.println("\nIt's a tie! No reward awarded this week.");
             }

@@ -1,22 +1,13 @@
-/**
- * Room & Vroom - Shared Household Management System
- * Authors: גל קסירר (318158466), אסף שוורץ (207812744), אסף חיון (214195331)
- *
- * SharedVehicle.java - Manages the physical vehicle and its booking schedule.
- *
- * Arrays used:
- *   - bookingList[]        : 1D array of VehicleBooking objects
- *   - weeklySchedule[][]   : 2D boolean array [day 0-6][hour 0-23] → true = occupied
- */
+
 public class SharedVehicle {
 
     // ===================== Constants =====================
-    private static final int MAX_BOOKINGS = 50;
-    private static final int DAYS_IN_WEEK = 7;
-    private static final int HOURS_IN_DAY = 24;
+    private static int MAX_BOOKINGS = 50;
+    private static int DAYS_IN_WEEK = 7;
+    private static int HOURS_IN_DAY = 24;
 
     // Day name lookup
-    private static final String[] DAY_NAMES = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
+    private static String[] DAY_NAMES = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
 
     // ===================== Fields =====================
     private String licensePlate;

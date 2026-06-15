@@ -1,10 +1,4 @@
-/**
- * Room & Vroom - Shared Household Management System
- * Authors: גל קסירר (318158466), אסף שוורץ (207812744), אסף חיון (214195331)
- * <p>
- * Partner.java - Represents a partner/user in the shared household system.
- * Tracks financial balance and chore fairness points.
- */
+
 public class Partner {
 
     // ===================== Fields =====================

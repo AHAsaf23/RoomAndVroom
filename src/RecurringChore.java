@@ -2,13 +2,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-/**
- * Room & Vroom - Shared Household Management System
- * Authors: גל קסירר (318158466), אסף שוורץ (207812744), אסף חיון (214195331)
- * <p>
- * RecurringChore.java - A chore that repeats on a schedule.
- * Inherits from Chore and adds reset logic + completion counter.
- */
+
 public class RecurringChore extends Chore {
 
     // ===================== Fields =====================

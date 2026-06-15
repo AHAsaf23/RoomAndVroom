@@ -1,14 +1,4 @@
-/**
- * Room & Vroom - Shared Household Management System
- * Authors: גל קסירר (318158466), אסף שוורץ (207812744), אסף חיון (214195331)
- * <p>
- * DataStructures.java - Contains all 4 required data structures:
- * <p>
- * 1. TransactionStack    — Stack  : undo history of financial transactions
- * 2. BookingQueue        — Queue  : pending vehicle booking requests
- * 3. ChoreLinkedList     — Linked List : active chore list
- * 4. ExpenseCategoryTree — Binary Search Tree : expense categories + totals
- */
+
 
 
 // ══════════════════════════════════════════════════════════════════════════════

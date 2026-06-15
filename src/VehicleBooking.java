@@ -1,10 +1,4 @@
-/**
- * Room & Vroom - Shared Household Management System
- * Authors: גל קסירר (318158466), אסף שוורץ (207812744), אסף חיון (214195331)
- *
- * Alertable.java - Interface for objects that can trigger alerts/notifications.
- * Implemented by: VehicleBooking
- */
+
 interface Alertable {
     /**
      * Sends an alert message to the relevant partner(s).
@@ -17,10 +11,7 @@ interface Alertable {
 
 // =============================================================================
 
-/**
- * VehicleBooking.java - Represents a time-slot reservation for the shared vehicle.
- * Implements Alertable to notify partners of upcoming or conflicting bookings.
- */
+
 public class VehicleBooking implements Alertable {
 
     // ===================== Fields =====================

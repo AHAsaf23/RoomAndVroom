@@ -1,15 +1,9 @@
-/**
- * Room & Vroom - Shared Household Management System
- * Authors: גל קסירר (318158466), אסף שוורץ (207812744), אסף חיון (214195331)
- * <p>
- * BookingConflictException.java - Custom exception thrown when a vehicle booking
- * overlaps with an existing reservation.
- */
+
 public class BookingConflictException extends Exception {
 
-    private final String conflictingDate;
-    private final int conflictStartHour;
-    private final int conflictEndHour;
+    private String conflictingDate;
+    private int conflictStartHour;
+    private int conflictEndHour;
 
     public BookingConflictException(String message) {
         super(message);

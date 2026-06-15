@@ -1,9 +1,4 @@
-/**
- * Room & Vroom - Shared Household Management System
- * Authors: גל קסירר (318158466), אסף שוורץ (207812744), אסף חיון (214195331)
- * <p>
- * Chore.java - Represents a household task that earns fairness points upon completion.
- */
+
 public class Chore {
 
     // ===================== Fields =====================
